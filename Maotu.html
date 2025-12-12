@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trắc Nghiệm Mạo Từ (A, An, The)</title>
+    <style>
+        /* CSS Định dạng */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e8f5e9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .quiz-container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 650px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #2e7d32;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #4caf50;
+            padding-bottom: 15px;
+        }
+
+        #question-text {
+            font-size: 1.4em;
+            margin-bottom: 30px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .btn-grid {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            background-color: #66bb6a;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            text-align: center;
+            font-size: 1.1em;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            flex-grow: 1;
+            max-width: 150px;
+        }
+
+        .btn:hover:not(.correct):not(.wrong) {
+            background-color: #43a047;
+            transform: translateY(-2px);
+        }
+
+        .btn.correct {
+            background-color: #388e3c; /* Màu xanh đậm cho đáp án đúng */
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        .btn.wrong {
+            background-color: #d32f2f; /* Màu đỏ cho đáp án sai */
+        }
+
+        .next-btn, .restart-btn {
+            width: 100%;
+            margin-top: 20px;
+            background-color: #1e88e5;
+            padding: 15px;
+            font-size: 1.1em;
+        }
+
+        .next-btn:hover, .restart-btn:hover {
+            background-color: #1565c0;
+        }
+
+        #result-area {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px dashed #ccc;
+        }
+
+        #score-text {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #2e7d32;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(56, 142, 60, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(56, 142, 60, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(56, 142, 60, 0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container">
+        <h1>📚 Trắc Nghiệm Mạo Từ (A, An, The)</h1>
+
+        <div id="question-area">
+            <p id="question-text">Câu hỏi sẽ xuất hiện ở đây...</p>
+            <div id="answer-buttons" class="btn-grid">
+                </div>
+        </div>
+
+        <div id="controls">
+            <button id="next-button" class="btn next-btn" style="display: none;">Câu Kế Tiếp</button>
+        </div>
+
+        <div id="result-area" style="display: none;">
+            <h2>🎉 Kết Quả Của Bạn</h2>
+            <p id="score-text"></p>
+            <button id="restart-button" class="btn restart-btn">Chơi Lại</button>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript Logic Trò Chơi
+        const questions = [
+            {
+                question: "Điền vào chỗ trống: I saw ___ interesting movie last night.",
+                answers: [
+                    { text: "a", correct: false },
+                    { text: "an", correct: true },
+                    { text: "the", correct: false },
+                    { text: "(Không có mạo từ)", correct: false }
+                ]
+            },
+            {
+                question: "Điền vào chỗ trống: ___ sun rises in the east.",
+                answers: [
+                    { text: "A", correct: false },
+                    { text: "An", correct: false },
+                    { text: "The", correct: true },
+                    { text: "(Không có mạo từ)", correct: false }
+                ]
+            },
+            {
+                question: "Điền vào chỗ trống: My father is ___ doctor.",
+                answers: [
+                    { text: "a", correct: true },
+                    { text: "an", correct: false },
+                    { text: "the", correct: false },
+                    { text: "(Không có mạo từ)", correct: false }
+                ]
+            },
+            {
+                question: "Điền vào chỗ trống: She is going to ___ university in London.",
+                answers: [
+                    { text: "a", correct: true }, // "university" bắt đầu bằng âm /juː/, là phụ âm, nên dùng 'a'
+                    { text: "an", correct: false },
+                    { text: "the", correct: false },
+                    { text: "(Không có mạo từ)", correct: false }
+                ]
+            },
+            {
+                question: "Chọn câu đúng nhất: This is ___ best book I've ever read.",
+                answers: [
+                    { text: "a", correct: false },
+                    { text: "an", correct: false },
+                    { text: "the", correct: true }, // Dùng 'the' với so sánh nhất (superlative)
+                    { text: "(Không có mạo từ)", correct: false }
+                ]
+            }
+        ];
+
+        // Lấy các phần tử từ DOM
+        const questionText = document.getElementById('question-text');
+        const answerButtons = document.getElementById('answer-buttons');
+        const nextButton = document.getElementById('next-button');
+        const resultArea = document.getElementById('result-area');
+        const scoreText = document.getElementById('score-text');
+        const questionArea = document.getElementById('question-area');
+        const controlsDiv = document.getElementById('controls');
+        const restartButton = document.getElementById('restart-button');
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        // Hàm bắt đầu trò chơi
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            resultArea.style.display = 'none';
+            questionArea.style.display = 'block';
+            controlsDiv.style.display = 'block';
+            nextButton.style.display = 'none';
+            showQuestion();
+        }
+
+        // Hàm hiển thị câu hỏi
+        function showQuestion() {
+            resetState();
+            let currentQuestion = questions[currentQuestionIndex];
+            
+            // Cập nhật text câu hỏi, bao gồm số thứ tự
+            questionText.innerHTML = `**Câu ${currentQuestionIndex + 1}/${questions.length}:** ${currentQuestion.question}`;
+
+            currentQuestion.answers.forEach(answer => {
+                const button = document.createElement('button');
+                button.textContent = answer.text;
+                button.classList.add('btn');
+                if (answer.correct) {
+                    button.dataset.correct = answer.correct;
+                }
+                button.addEventListener('click', selectAnswer);
+                answerButtons.appendChild(button);
+            });
+        }
+
+        // Hàm xóa trạng thái và các nút cũ
+        function resetState() {
+            nextButton.style.display = 'none';
+            // Đảm bảo không còn nút nào trong answerButtons
+            while (answerButtons.firstChild) {
+                answerButtons.removeChild(answerButtons.firstChild);
+            }
+        }
+
+        // Hàm xử lý khi chọn câu trả lời
+        function selectAnswer(e) {
+            const selectedButton = e.target;
+            const isCorrect = selectedButton.dataset.correct === 'true';
+
+            // Chỉ cho phép chọn 1 lần
+            if (nextButton.style.display === 'block') return;
+
+            // Đánh dấu đúng/sai và cập nhật điểm
+            if (isCorrect) {
+                selectedButton.classList.add('correct');
+                score++;
+            } else {
+                selectedButton.classList.add('wrong');
+            }
+
+            // Vô hiệu hóa tất cả các nút và làm nổi bật đáp án đúng
+            Array.from(answerButtons.children).forEach(button => {
+                if (button.dataset.correct === 'true') {
+                    button.classList.add('correct');
+                }
+                button.removeEventListener('click', selectAnswer); 
+                button.style.cursor = 'default';
+            });
+
+            nextButton.style.display = 'block';
+        }
+
+        // Hàm hiển thị kết quả cuối cùng
+        function showResults() {
+            resetState();
+            questionArea.style.display = 'none';
+            controlsDiv.style.display = 'none';
+            resultArea.style.display = 'block';
+            
+            scoreText.textContent = `Bạn đã đúng ${score} trên tổng số ${questions.length} câu!`;
+        }
+
+        // Hàm chuyển sang câu hỏi kế tiếp
+        function handleNextButton() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        // Sự kiện cho nút 'Câu Kế Tiếp'
+        nextButton.addEventListener('click', handleNextButton);
+
+        // Sự kiện cho nút 'Chơi Lại'
+        restartButton.addEventListener('click', startQuiz);
+
+        // Bắt đầu trò chơi khi tải trang
+        startQuiz();
+    </script>
+</body>
+</html>
